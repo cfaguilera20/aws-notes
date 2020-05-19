@@ -139,3 +139,95 @@ chkconfig httpd on
 ```
 
 WP PWD: admin  WP_PASSWORD
+
+WP HA - EC2
+
+ ```bash
+ #!/bin/bash
+yum update -y
+yum install httpd -y
+amazon-linux-extras install php7.2 -y
+cd /var/www/html
+echo "healthy" > healthy.html
+wget https://wordpress.org/latest.tar.gz
+tar -xzf latest.tar.gz
+cp -r wordpress/* /var/www/html/
+rm -rf wordpress
+rm -rf latest.tar.gz
+chmod -R 755 wp-content
+chown -R apache:apache wp-content
+wget https://s3.amazonaws.com/bucketforwordpresslab-donotdelete/htaccess.txt
+mv htaccess.txt .htaccess
+chkconfig httpd on
+service httpd start
+ ```
+
+WP HA - CloudFront
+
+```bash
+sudo su
+cd /var/www/html/
+vi .htaccess  # Update our CloudFront url
+```
+
+WP HA - S3
+
+```bash
+aws s3 ls
+aws s3 cp --recursive /var/www/html/wp-content/uploads s3://cfa-wp-media
+aws s3 cp --recursive /var/www/html s3://cfa-wp-code
+aws s3 ls s3://<bucketname>
+```
+
+WP HA - S3 Sync
+
+```bash
+aws s3 sync /var/www/html s3://cfa-wp-code
+```
+
+WP HA - Apache rewrite
+
+```bash
+cd /etc/httpd/conf
+cp httpd.conf httpd.copy.conf
+vi httpd.conf # Find for AllowOverride controls what directives may be placed in .htaccess files. Change the value to All
+service httpd restart
+```
+
+WP HA - S3 Policy
+
+First allow plublic access to the media bucket, then add the following policy.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "s3:GetObject"
+        ],
+      "Resource": [
+        "arn:aws:s3:::BUCKET_NAME/*"
+        ]
+    }
+  ]
+}
+```
+
+Create an Application Load Balancer
+Create a A record with Alias to ALBWP
+Add my EC2 instance as Registered target
+
+Add crontab to sync data
+```bash
+cd /etc
+nano crontab
+```
+
+Add the following cron
+```bash
+*/1 * * * * root aws s3 sync --delete s3://cfa-wp-code /var/www/html 
+```
