@@ -268,7 +268,56 @@ Restart cron
 service crond restart
 ```
 
-Custom authorizers
+## CodeDeploy
+
+EC2 APPSpec File Structure
+
+- Version: Currently the allowed values is 0.0.
+- OS: The operation system version you are using, e.g. linux, windows.
+- Files: The location of any application files that need to be copied and where they sould be copied.
+- Hooks: Scripts which need to run at set points in the deployment lifecycle. Hooks have a very specific run order.
+
+Scripts that might run during a deployment: 
+
+- Unzip files
+- Run tests
+- Deal with load balancing.
+
+Example appspec.yml
+
+```yml
+version: 0.0
+os: linux
+files:
+  - source: Config/config.txt
+    destination: /webapps/Config 
+  - source: Source
+    destination: /webapps/myApp
+hooks: 
+  BeforeInstall:
+    - location: Scripts/UnzipScript.sh
+  AfterInstall:
+    - location: Scripts/RunTestScript.sh
+    - timeout: 180
+  AplicationStart:
+    - location: Scripts/RunFunctionalTestsScript.sh
+    - timeout: 3600
+  ValidateServuce:
+    - location: Scripts/MonitoServiceScript.sh
+    - timeout: 3600
+    - runas: codedeployuser
+```
+
+Typical folder setup: 
+
+- appspec.yml
+- /Scripts
+- /Config
+- /Source
+
+The appspec.yml file must be placed at the root of the deployment. 
+
+## Custom authorizers
 
 [Click here for more information](https://aws.amazon.com/blogs/security/use-aws-lambda-authorizers-with-a-third-party-identity-provider-to-secure-amazon-api-gateway-rest-apis/)
 
