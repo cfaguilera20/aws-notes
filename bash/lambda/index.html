@@ -1,0 +1,30 @@
+<html>
+    <script>
+        function myFunction() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById(
+                        'my-demo'
+                    ).innerHTML = this.responseText;
+                }
+            };
+            xhttp.open(
+                'GET',
+                'https://xcu210i04c.execute-api.us-east-1.amazonaws.com/default/MyFirstLambdaFunction',
+                true
+            );
+            xhttp.send();
+        }
+    </script>
+    <body>
+        <div align="center">
+            <br /><br /><br /><br />
+            <h1>Hello <span id="my-demo">CFATech.net!</span></h1>
+            <button onclick="myFunction()">Click me</button><br />
+            <img
+                src="http://cfatech.net/wp-content/uploads/2020/05/fundidora.png"
+            />
+        </div>
+    </body>
+</html>
