@@ -317,6 +317,10 @@ Typical folder setup:
 
 The appspec.yml file must be placed at the root of the deployment. 
 
+## Find files by size
+
+sudo find / -type f -size +10M -exec ls -lh {} \;
+
 ## Custom authorizers
 
 [Click here for more information](https://aws.amazon.com/blogs/security/use-aws-lambda-authorizers-with-a-third-party-identity-provider-to-secure-amazon-api-gateway-rest-apis/)
