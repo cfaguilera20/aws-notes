@@ -319,7 +319,11 @@ The appspec.yml file must be placed at the root of the deployment.
 
 ## Find files by size
 
+```sh
+df -hT /dev/xvda1
 sudo find / -type f -size +10M -exec ls -lh {} \;
+````
+
 
 ## Custom authorizers
 
